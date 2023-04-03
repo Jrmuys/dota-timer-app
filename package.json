@@ -1,33 +1,38 @@
 {
-  "name": "dota-timer-app",
-  "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
-  "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
-  },
-  "dependencies": {
-    "@emotion/react": "^11.10.6",
-    "@emotion/styled": "^11.10.6",
-    "@expo/webpack-config": "^18.0.2",
-    "@mui/material": "^5.11.15",
-    "expo": "~48.0.9",
-    "expo-dev-client": "~2.1.6",
-    "expo-linear-gradient": "~12.1.2",
-    "expo-splash-screen": "^0.18.1",
-    "expo-status-bar": "~1.4.4",
-    "react": "18.2.0",
-    "react-dom": "^18.2.0",
-    "react-native": "0.71.4",
-    "react-native-image-modal": "^1.0.16",
-    "react-native-linear-gradient": "^2.6.2",
-    "react-native-web": "~0.18.10"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "pod": "^0.9.0"
-  },
-  "private": true
+   "name": "dota-timer-app",
+   "version": "1.0.0",
+   "main": "node_modules/expo/AppEntry.js",
+   "scripts": {
+      "start": "expo start",
+      "android": "expo start --android",
+      "ios": "expo start --ios",
+      "web": "expo start --web"
+   },
+   "dependencies": {
+      "@emotion/react": "^11.10.6",
+      "@emotion/styled": "^11.10.6",
+      "@expo/webpack-config": "^18.0.2",
+      "@mui/material": "^5.11.15",
+      "axios": "^1.3.4",
+      "expo": "~48.0.9",
+      "expo-dev-client": "~2.1.6",
+      "expo-linear-gradient": "~12.1.2",
+      "expo-splash-screen": "^0.18.1",
+      "expo-status-bar": "~1.4.4",
+      "react": "18.2.0",
+      "react-dom": "^18.2.0",
+      "react-native": "0.71.4",
+      "react-native-dialog": "^9.3.0",
+      "react-native-image-modal": "^1.0.16",
+      "react-native-linear-gradient": "^2.6.2",
+      "react-native-reanimated": "~2.14.4",
+      "react-native-svg": "13.4.0",
+      "react-native-web": "~0.18.10",
+      "react-timer-hook": "^3.0.5"
+   },
+   "devDependencies": {
+      "@babel/core": "^7.20.0",
+      "pod": "^0.9.0"
+   },
+   "private": true
 }

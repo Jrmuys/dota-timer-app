@@ -1,33 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import RoshanTimer from './RoshanTimer';
 
-const Header = () => {
+const Header = ({ paused, setPaused }) => {
    const [leftTime, setLeftTime] = useState(0);
    const [rightTime, setRightTime] = useState(0);
    const [mainTime, setMainTime] = useState(0);
+   // const [isPaused, setIsPaused] = useState(false);
 
    useEffect(() => {
-      let timer = setInterval(() => {
+      let timer;
+      timer = setInterval(() => {
          setLeftTime(leftTime + 1);
       }, 1000);
       return () => clearInterval(timer);
    }, [leftTime]);
 
    useEffect(() => {
-      let timer = setInterval(() => {
-         setRightTime(rightTime + 1);
-      }, 1000);
+      let timer;
+      if (!paused) {
+         timer = setInterval(() => {
+            setRightTime(rightTime + 1);
+         }, 1000);
+      }
       return () => clearInterval(timer);
    }, [rightTime]);
 
    useEffect(() => {
-      let timer = setInterval(() => {
-         setMainTime(mainTime + 1);
-      }, 1000);
+      let timer;
+      if (!paused) {
+         timer = setInterval(() => {
+            setMainTime(mainTime + 1);
+         }, 1000);
+      }
       return () => clearInterval(timer);
-   }, [mainTime]);
+   }, [mainTime, paused]);
 
    const renderTimer = (time) => {
       const minutes = Math.floor(time / 60);
@@ -41,15 +49,22 @@ const Header = () => {
       );
    };
 
+   handlePause = () => {
+      setPaused(!paused);
+   };
+
    return (
       <View style={styles.container}>
          <View style={[styles.section, styles.sideSection]}>
-            <RoshanTimer />
+            <RoshanTimer paused={paused} />
          </View>
-         <View style={[styles.section, styles.middleSection]}>
+         <TouchableOpacity
+            onPress={handlePause}
+            style={[styles.section, styles.middleSection]}
+         >
             <Ionicons name="stopwatch-outline" size={32} color="white" />
             {renderTimer(mainTime)}
-         </View>
+         </TouchableOpacity>
          <View style={[styles.section, styles.sideSection]}>
             <Ionicons name="timer-outline" size={24} color="white" />
             {renderTimer(rightTime)}
@@ -64,7 +79,7 @@ const styles = StyleSheet.create({
       height: 100,
       gap: 10,
       marginTop: 20,
-      fontFamily: 'Hypatia-Sans-Pro',
+      fontFamily: 'radiance-semibold',
 
       // alignItems: 'center',
    },

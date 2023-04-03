@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const RoshanTimer = ({ isPaused }) => {
+const RoshanTimer = ({ paused }) => {
    const [isRoshanDead, setIsRoshanDead] = useState(false);
    const [isRoshanRespawning, setIsRoshanRespawning] = useState(false);
    const [respawnTimer, setRespawnTimer] = useState(480); // 8 minutes in seconds
@@ -9,7 +9,7 @@ const RoshanTimer = ({ isPaused }) => {
 
    useEffect(() => {
       let intervalId;
-      if (isRoshanDead && !isPaused) {
+      if (isRoshanDead && !paused) {
          intervalId = setInterval(() => {
             setRespawnTimer((timer) => {
                if (timer === 0) {
@@ -25,11 +25,11 @@ const RoshanTimer = ({ isPaused }) => {
       }
 
       return () => clearInterval(intervalId);
-   }, [isRoshanDead, isPaused]);
+   }, [isRoshanDead, paused]);
 
    useEffect(() => {
       let intervalId;
-      if (isRoshanRespawning && !isPaused) {
+      if (isRoshanRespawning && !paused) {
          intervalId = setInterval(() => {
             setRespawningTimer((timer) => {
                if (timer === 0) {
@@ -46,10 +46,10 @@ const RoshanTimer = ({ isPaused }) => {
       }
 
       return () => clearInterval(intervalId);
-   }, [isRoshanRespawning, isPaused]);
+   }, [isRoshanRespawning, paused]);
 
    const handleRoshanClick = () => {
-      if (!isRoshanDead && !isRoshanRespawning && !isPaused) {
+      if (!isRoshanDead && !isRoshanRespawning && !paused) {
          setIsRoshanDead(true);
       }
    };

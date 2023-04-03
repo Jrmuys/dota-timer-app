@@ -13,8 +13,25 @@ import { useState, useCallback } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import Header from './components/Header';
 import Body from './components/Body';
+import Dialog from 'react-native-dialog';
+import HeroSelector from './components/HeroSelector';
+import { heroImages } from './assets/heroIndex';
+import { useEffect } from 'react';
 
 export default function App() {
+   const [newGame, setNewGame] = useState(true);
+   const [matchId, setMatchId] = useState('');
+   const [visible, setVisible] = useState(true);
+   const [manualMode, setManualMode] = useState(false);
+   const [manualTeams, setManualTeams] = useState({
+      allyTeam: [],
+      enemyTeam: [],
+   });
+   const [radiant, setRadiant] = useState(true);
+   const [paused, setPaused] = useState(true);
+
+   const [heroList, setHeroList] = useState([]);
+
    const [fontsLoaded] = useFonts({
       'Hypatia-Pro': require('./assets/fonts/Hypatia.ttf'),
       'Hypatia-Bold': require('./assets/fonts/Hypatia-Bold.ttf'),
@@ -25,6 +42,29 @@ export default function App() {
       'Reaver-SemiBold': require('./assets/fonts/Reaver-SemiBold.ttf'),
    });
 
+   useEffect(() => {
+      const heroes = require('./assets/data/heroes.json');
+      // console.log('HEROES', heroes);
+      const heroList = Object.keys(heroes).map((heroId) => {
+         // console.log('HERO ID', heroId);
+         const hero = heroes[heroId];
+
+         if (hero && hero.displayName) {
+            // console.log(
+            //    heroId,
+            //    hero.displayName,
+            //    heroImages[hero.name.replace('npc_dota_hero_', '')].image
+            // );
+            return {
+               heroId: hero.id,
+               name: hero.displayName,
+               image: heroImages[hero.name.replace('npc_dota_hero_', '')].image,
+            };
+         }
+      });
+      setHeroList(heroList);
+   }, []);
+
    const onLayoutRootView = useCallback(async () => {
       if (fontsLoaded) {
          await SplashScreen.hideAsync();
@@ -34,6 +74,20 @@ export default function App() {
    if (!fontsLoaded) {
       return null;
    }
+
+   handleIdInput = (text) => {
+      console.log('TEXT', text, text.length);
+      if (text.length === 10) {
+         setMatchId(text);
+         console.log('MATCH ID', matchId);
+      }
+   };
+
+   const handleManualModeSubmit = (teams) => {
+      console.log('TEAMS', teams);
+      setManualMode(false);
+      setManualTeams(teams);
+   };
 
    const image = './assets/minimap.jpg';
 
@@ -46,12 +100,53 @@ export default function App() {
             source={require('./assets/images/minimap.jpg')}
             resizeMode="cover"
          >
-            <View style={styles.overlay}>
-               <View style={[styles.container, styles.main]}>
-                  <Header></Header>
-                  <Body></Body>
+            {newGame && (
+               <Dialog.Container visible={newGame}>
+                  <Dialog.Title>Start New Game</Dialog.Title>
+                  <Dialog.Description>
+                     Enter match ID to start a new game
+                  </Dialog.Description>
+                  <Dialog.Input
+                     // codeLength={10}
+                     label="Match ID"
+                     placeholder="Enter match ID"
+                     keyboardType="numeric"
+                     maxLength={10}
+                     onChangeText={(text) => handleIdInput(text)}
+                  />
+                  <Dialog.Button
+                     label="Cancel"
+                     onPress={() => {
+                        setNewGame(false);
+                        setManualMode(true);
+                     }}
+                  />
+                  <Dialog.Button
+                     disabled={matchId.length !== 10}
+                     label="Start"
+                     onPress={() => setNewGame(false)}
+                  />
+               </Dialog.Container>
+            )}
+            {manualMode && (
+               <HeroSelector
+                  setTeams={handleManualModeSubmit}
+                  heroList={heroList}
+               />
+            )}
+            {!manualMode && (
+               <View style={styles.overlay}>
+                  <View style={[styles.container, styles.main]}>
+                     <Header paused={paused} setPaused={setPaused}></Header>
+                     <Body
+                        paused={paused}
+                        matchId={matchId}
+                        manualTeams={manualTeams}
+                        radiant={radiant}
+                     ></Body>
+                  </View>
                </View>
-            </View>
+            )}
          </ImageBackground>
       </SafeAreaView>
    );

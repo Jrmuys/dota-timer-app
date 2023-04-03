@@ -1,14 +1,60 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, Button, TextInput } from 'react-native';
 import { abilityImages } from '../assets/abilityIndex';
 import { heroImages } from '../assets/heroIndex';
 import HorizontalSection from './HorizontalSection';
+import { getMatch } from '../services/matchService';
+import { useTimer } from 'react-timer-hook';
+import Timer from './Timer';
+const Body = ({ matchId, radiant: radiantIn, manualTeams, paused }) => {
+   const [allyTeam, setAllyTeam] = React.useState([]);
+   const [enemyTeam, setEnemyTeam] = React.useState([]);
+   const [radiant, setRadiant] = React.useState(true);
 
-const Body = () => {
+   React.useEffect(() => {
+      setRadiant(radiantIn);
+   }, [radiantIn]);
+
+   React.useEffect(() => {
+      console.log(manualTeams);
+      if (
+         manualTeams.allyTeam.length === 5 &&
+         manualTeams.enemyTeam.length === 5
+      ) {
+         setAllyTeam(manualTeams.allyTeam);
+         setEnemyTeam(manualTeams.enemyTeam);
+      }
+   }, [manualTeams]);
+
+   React.useEffect(() => {
+      if (!radiantIn) return;
+      console.log('RADIANT', radiantIn);
+      setRadiant(radiantIn);
+   }, [radiantIn]);
+
+   React.useEffect(() => {
+      if (!matchId) return;
+      console.log('MATCH ID', matchId);
+      getMatch(matchId).then((data) => {
+         console.log('DATA', data);
+         const { radiant, dire } = data;
+
+         if (radiant) {
+            setAllyTeam(radiant);
+            setEnemyTeam(dire);
+         } else {
+            setAllyTeam(dire);
+            setEnemyTeam(radiant);
+         }
+         console.log('ALLY TEAM', allyTeam);
+         console.log('ENEMY TEAM', enemyTeam);
+      });
+   }, [matchId]);
+
    const abilities = require('../assets/data/abilities.json');
    const heroes = require('../assets/data/heroes.json');
    const myTeam = [87, 45, 2, 3, 4];
-   const enemyTeam = [5, 100, 29, 120, 49];
+   // const enemyTeam = [5, 100, 29, 120, 49];
    const disruptor = heroes[87];
    const abilitiesDisruptor = disruptor.abilities.map((ability) => {
       // console.log('IS THIS WORKING?', ability);
@@ -28,49 +74,41 @@ const Body = () => {
          <View style={styles.section}>
             <View style={styles.horizontalSection}>
                {/* Show all of my team's images */}
-               {myTeam.map((heroId) => {
-                  const hero = heroes[heroId];
-                  const heroName = hero.name.replace('npc_dota_hero_', '');
-                  const heroThumb = `../assets/images/heroes/${heroName}_horz.png`;
-                  // console.log(heroThumb);
-                  return (
-                     <Image
-                        style={styles.smallImage}
-                        source={heroImages[heroName].image}
-                        key={heroId}
-                     />
-                  );
-               })}
+               {allyTeam &&
+                  allyTeam.map((allyHero) => {
+                     const heroId = allyHero.heroId;
+                     // console.log('HERO ID', heroId);
+                     const hero = heroes[heroId];
+                     const heroName = hero.name.replace('npc_dota_hero_', '');
+                     const heroThumb = `../assets/images/heroes/${heroName}_horz.png`;
+                     // console.log(heroThumb);
+                     return (
+                        <Image
+                           style={styles.smallImage}
+                           source={heroImages[heroName].image}
+                           key={heroId}
+                        />
+                     );
+                  })}
             </View>
          </View>
          <View style={styles.section}>
             {/* Make horizontal sections for each enemy hero with their hero icon first */}
-            {enemyTeam.map((heroId) => {
+            {enemyTeam.map((enemyHero) => {
+               const heroId = enemyHero.heroId;
                const hero = heroes[heroId];
                const heroName = hero.name.replace('npc_dota_hero_', '');
                const heroThumb = `../assets/images/heroes/${heroName}_horz.png`;
                const heroAbilities = hero.abilities.reduce(
                   (results, ability) => {
                      const abilityData = abilities[ability.abilityId];
-                     console.log(
-                        'ABILITY:',
-                        ability['abilityId'],
-                        abilityData.name
-                     );
+
                      try {
                         const imageSource =
                            abilityImages[abilityData.name].image;
-                        console.log(
-                           '🚀 ~ file: Body.jsx:59 ~ imageSource:',
-                           imageSource
-                        );
-                        // console.log('STATS', abilityData.stat);
 
                         const active = true;
-                        console.log(
-                           '🚀 ~ file: Body.jsx:63 ~ {enemyTeam.map ~ active:',
-                           active
-                        );
+
                         const id = abilityData.id;
                         const ultimate = abilityData.stat.isUltimate;
                         const maxLevel = abilityData.stat.maxLevel
@@ -78,10 +116,8 @@ const Body = () => {
                            : ultimate
                            ? 3
                            : 4;
-                        console.log('MAX LEVEL', maxLevel);
                         // const level = Math.floor(Math.random() * maxLevel); // 0, 1, 2, 3
                         const level = maxLevel; // 0, 1, 2, 3
-                        console.log('LEVEL', level);
                         const cooldown = abilityData.stat.cooldown
                            ? abilityData.stat.cooldown
                            : undefined;
@@ -91,18 +127,7 @@ const Body = () => {
                               cooldown.push(cooldown[0]);
                            }
                         }
-                        console.log(
-                           '🚀 ~ file: Body.jsx:61 ~ {enemyTeam.map ~ cooldown:',
-                           cooldown
-                        );
-                        console.log(
-                           imageSource,
-                           ultimate,
-                           maxLevel,
-                           cooldown,
-                           active,
-                           id
-                        );
+
                         results.push({
                            imageSource,
                            cooldown,
@@ -125,6 +150,7 @@ const Body = () => {
                // console.log(heroThumb);
                return (
                   <HorizontalSection
+                     paused={paused}
                      backgroundImage={heroImages[heroName].image}
                      number={heroId}
                      title={hero.displayName}

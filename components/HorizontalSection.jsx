@@ -11,6 +11,7 @@ import Ability from './Ability';
 import AbilityIcon from './AbilityIcon';
 
 const HorizontalSection = ({
+   paused,
    backgroundImage,
    number,
    title,
@@ -33,7 +34,7 @@ const HorizontalSection = ({
    useEffect(() => {
       // If the buyback status is true, start the cooldown
       let interval;
-      if (buybackStatus) {
+      if (buybackStatus && !paused) {
          interval = setInterval(() => {
             setBuybackCooldown((timer) => {
                if (timer === 0) {
@@ -45,7 +46,7 @@ const HorizontalSection = ({
          }, 1000);
       }
       return () => clearInterval(interval);
-   }, [buybackStatus]);
+   }, [buybackStatus, paused]);
 
    const getTimerString = (timer) => {
       const minutes = Math.floor(timer / 60)
@@ -75,6 +76,7 @@ const HorizontalSection = ({
                      <TouchableOpacity
                         style={styles.button}
                         onPress={handleBuyback}
+                        onLongPress={() => setBuybackStatus(false)}
                      >
                         <Text style={styles.buttonText}>
                            {' '}
@@ -93,6 +95,7 @@ const HorizontalSection = ({
             {abilities &&
                abilities.map((ability) => (
                   <AbilityIcon
+                     paused={paused}
                      imageSource={ability.imageSource}
                      cooldowns={ability.cooldown}
                      active={ability.active}

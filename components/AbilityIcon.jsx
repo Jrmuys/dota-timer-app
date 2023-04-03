@@ -8,6 +8,7 @@ const AbilityIcon = ({
    level,
    maxLevel,
    ultimate,
+   paused,
 }) => {
    // console.log('COOLDOWNS', cooldowns);
    const [cooldownRemaining, setCooldownRemaining] = useState(
@@ -19,9 +20,11 @@ const AbilityIcon = ({
       useEffect(() => {
          let cooldownInterval = null;
          if (isOnCooldown) {
-            cooldownInterval = setInterval(() => {
-               setCooldownRemaining((prevRemaining) => prevRemaining - 1);
-            }, 1000);
+            if (!paused) {
+               cooldownInterval = setInterval(() => {
+                  setCooldownRemaining((prevRemaining) => prevRemaining - 1);
+               }, 1000);
+            }
          } else {
             clearInterval(cooldownInterval);
             setCooldownRemaining(cooldowns[level - 1]);
@@ -30,7 +33,7 @@ const AbilityIcon = ({
             setIsOnCooldown(false);
          }
          return () => clearInterval(cooldownInterval);
-      }, [isOnCooldown, cooldownRemaining]);
+      }, [isOnCooldown, cooldownRemaining, paused]);
    }
    const handlePress = () => {
       if (!isOnCooldown) {
